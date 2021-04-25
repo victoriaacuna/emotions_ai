@@ -106,11 +106,17 @@ const ManuelModel = props => {
 
         console.log('url', url)
 
+        let myImage = new Image()
+        myImage.src = url;
+        console.log('img', myImage);
+
         // setCurrentImage(url)
     }
     const state = {
         backend: 'wasm'
     };
+
+    
 
 
     // Check if webcam access is supported.
@@ -348,7 +354,8 @@ const ManuelModel = props => {
                     <canvas id="canvas" width="640" height="480"
                       style={{
                         "-webkit-transform": "scaleX(-1)",
-                        "transform": "scaleX(-1)"
+                        "transform": "scaleX(-1)",
+                        "backgroundColor": 'yellow'
                     }}></canvas>
 
                 </div>
