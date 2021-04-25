@@ -15,9 +15,6 @@ const ManuelModel = props => {
     let video = document.getElementById('webcam');
     const liveView = document.getElementById('liveView');
 
-    const [colorsito, setColorsito] = useState('rgb(240, 128, 128)')
-    const [position, setPosition] = useState(0)
-
     // Pretend model has loaded so we can try out the webcam code.
     // Store the resulting model in the global scope of our app.
     const [model, setModel] = useState(undefined);
@@ -83,15 +80,19 @@ const ManuelModel = props => {
         if((imageHeight +  realTopLeft_y) > canvasHeight){
             imageHeight = canvasHeight - realTopLeft_y
         }
-        
 
-        setPosition(start[1])
-        context.fillRect(realTopLeft_x, realTopLeft_y, imageWidth, imageHeight);
+        // context.fillRect(realTopLeft_x, realTopLeft_y, imageWidth, imageHeight);
         context.drawImage(
             video, 
             realTopLeft_x, realTopLeft_y, imageWidth, imageHeight,
             realTopLeft_x, realTopLeft_y, imageWidth, imageHeight,
         )
+        // context.fillRect(0, 0, 250, 250);
+        // context.drawImage(
+        //     video, 
+        //     realTopLeft_x, realTopLeft_y, imageWidth, imageHeight,
+        //     0, 0, 250, 250,
+        // )
  
         
 
@@ -196,7 +197,6 @@ const ManuelModel = props => {
 
                         if (prueba) {
                             snap(start, size)
-
                         }
 
                         if (annotateBoxes) {
@@ -210,24 +210,14 @@ const ManuelModel = props => {
                             }
                         }
 
-                        // try {
-                        //     console.log(':)');
-                        //     setCurrentImage(video)
-                        // } catch (error) {
-                        //     setCurrentImage(group)
-                        //     console.log(':(');
-                        // }
-
                     }
 
-
-                    // setCurrentImage(video)
-                    console.log(':)');
                 }
-                // setTimeout(function(){
-                //     requestAnimationFrame(predictWebcam)
-                // }, 300000);
-                requestAnimationFrame(predictWebcam)
+                // Cada medio minuto (30 segundos)
+                setTimeout(function(){
+                    requestAnimationFrame(predictWebcam)
+                }, 10000);
+                // requestAnimationFrame(predictWebcam)
 
             })
     }
@@ -320,9 +310,9 @@ const ManuelModel = props => {
 
             </div>
 
-            <div style={{'height': '150px', 'width':'250px', 'backgroundColor': colorsito}}>
-{position}
-            </div>
+            {/* <div style={{'height': '150px', 'width':'250px', 'backgroundColor': colorsito}}>
+                {position}
+            </div> */}
 
             <div
                 id="demos"
