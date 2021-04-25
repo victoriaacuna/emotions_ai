@@ -184,7 +184,12 @@ const Blazeface = props => {
         <div>
             <div>BLAZEFACE</div>
             <section id="demos" className={sectionClass}>
-                <button id="webcamButton" onClick={handleEnableCamera} >Enable Webcam</button>
+                <button 
+                    id="webcamButton" 
+                    onClick={handleEnableCamera} 
+                >
+                    Enable Webcam
+                </button>
                 <div id="liveView" className="camView">   
                     <video 
                         id="webcam" 
