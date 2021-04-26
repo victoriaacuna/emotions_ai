@@ -173,10 +173,9 @@ const imagePrep =()=>{
     let myImage = new Image();
     myImage.src = url;
     var normalArray = Array.from(imageData2.data);
-    const a = tf.tensor(normalArray);
-    a.reshape((1,47,47,4))
-    console.log(a)
-   
+    let a = tf.tensor(normalArray);
+    a = tf.reshape(a, [1,47,47,4])
+  
 
 
     // setCurrentImage(url)
