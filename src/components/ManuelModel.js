@@ -6,26 +6,37 @@ import group from "./../assets/group.png";
 
 const ManuelModel = (props) => {
 
-    const modelImgWidth = 48;
-    const [currentImage, setCurrentImage] = useState(group);
+  // DEFINICIÓN DE VARIABLES Y CONSTANTES.
 
+  // Este es el tamaño de pixeles con el que fue entrenado el modelo.
+  // El modelo de Manuel fue entrenado con imágenes blanco y negro. Es decir, 48x48x1
+  const modelImageSize = 48;
+  // Esta variable guardará el url de la imagen actual (la que capta del video cada cierto tiempo).
+  // Inicialmente toma el valor de un archivo png cualquiera (group).
+  const [currentImage, setCurrentImage] = useState(group);
+  // Este es el modelo que reconoce los rostros.
   const blazeface = require("@tensorflow-models/blazeface");
-
+  // Esta variable guarda el valor de la clase para que pueda mostrar elementos de acuerdo a si el modelo se ha cargado o no.
   const [sectionClass, setSectionClass] = useState("invisible");
+  // Esta variable es para poder acceder al video.
   let video = document.getElementById("webcam");
-  const liveView = document.getElementById("liveView");
-
-  // Pretend model has loaded so we can try out the webcam code.
-  // Store the resulting model in the global scope of our app.
+  // Guarda el modelo (en este caso, el modelo para el reconocimiento de rostros)
   const [model, setModel] = useState(undefined);
+  // Este es el canvas donde se está dibujando la imagen cortada.
+  const canvas2 = document.getElementById("canvas");
+  // Variable que define el backend para poder cargar el modelo de blazeface.
+  const state = {
+    backend: "wasm",
+  };
+  // Definición de variables que serán utilizadas más adelante.
+  let ctx, videoWidth, videoHeight, canvas, context;
+  
 
-  let ctx, videoWidth, videoHeight, canvas, w, h, ratio, canvas2, context;
-  canvas2 = document.getElementById("canvas");
-  console.log("CANVAS", canvas2);
-
-  // MIT http://rem.mit-license.org
+  // Este método sirve para tomar solo la parte del canvas que tiene la imagen
+  // Se deshace de todos los pixels tramsparentes.
   const trimCanvas = (c) => {
-    var ctx = c.getContext("2d"),
+
+    let ctx = c.getContext("2d"),
       copy = document.createElement("canvas").getContext("2d"),
       pixels = ctx.getImageData(0, 0, c.width, c.height),
       l = pixels.data.length,
@@ -82,29 +93,20 @@ const ManuelModel = (props) => {
     // Return trimmed canvas
     return copy.canvas;
   };
-
-const imagePrep =()=>{
-
-}
-
-  ///define a function
+ 
+  // Capturar la imagen del video
   const snap = async (start, size, i) => {
 
-    // console.log('i', i);
     context = canvas2.getContext("2d");
-    ratio = video.videoWidth / video.videoHeight;
-    w = video.videoWidth - 100;
-    h = parseInt(w / ratio, 10);
-
     canvas2.width = videoWidth;
     canvas2.height = videoHeight;
 
-
+    // Calcular la coordenada x real del top left, ya que el video está horizontalmente invertido.
     let realTopLeft_x = canvas2.width - (start[0] + size[0]);
     let imageWidth = size[0];
     const canvasWidth = canvas2.width;
-  
-
+    
+    // Manejar cuando el rostro se sale de los bordes horizontales del video.
     if (realTopLeft_x > canvasWidth) {
       imageWidth = imageWidth - (canvasWidth - realTopLeft_x);
       realTopLeft_x = canvasWidth;
@@ -114,10 +116,13 @@ const imagePrep =()=>{
       realTopLeft_x = realTopLeft_x - imageWidth;
     }
 
+    // Calcular la coordenada y real del top left. 
+    // Esta es la misma, ya que solo está invertido horizontalmente y no vertical.
     let realTopLeft_y = start[1];
     let imageHeight = size[1];
     const canvasHeight = canvas2.height;
 
+    // Manejar cuando el rostro se sale de los bordes verticalmente del video.
     if (realTopLeft_y < 0) {
       imageHeight = imageHeight + realTopLeft_y;
       realTopLeft_y = 0;
@@ -127,7 +132,7 @@ const imagePrep =()=>{
       imageHeight = canvasHeight - realTopLeft_y;
     }
 
-    // context.fillRect(realTopLeft_x, realTopLeft_y, imageWidth, imageHeight);
+    // Dibujar la imagen recortada.
     context.drawImage(
       video,
       realTopLeft_x,
@@ -136,11 +141,12 @@ const imagePrep =()=>{
       imageHeight,
       realTopLeft_x,
       realTopLeft_y,
-      modelImgWidth+1,
-      modelImgWidth+1
+      modelImageSize+1,
+      modelImageSize+1
     );
 
-    var trimmedCanvas = trimCanvas(canvas2);
+    // Capturar la imagen del rostro, deshaciéndose de los pixeles transparentes del canvas.
+    let trimmedCanvas = trimCanvas(canvas2);
 
     
     const imageData = trimmedCanvas.getContext("2d").getImageData(
@@ -150,12 +156,13 @@ const imagePrep =()=>{
       trimmedCanvas.height
     );
  
-
+    // Convertir la imagen a blanco y negro y tener el array blanco y negro (un solo channel)
     let baw_array = [];
     for (var i=0;i<imageData.data.length;i+=4) {
+
         var avg = (imageData.data[i]+imageData.data[i+1]+imageData.data[i+2])/3;
         let baw = (0.3 * imageData.data[i]) + (0.59 * imageData.data[i+1]) + (0.11 * imageData.data[i+2])
-        // let baw = (imageData.data[i]+imageData.data[i+1]+imageData.data[i+2])/3;
+
         baw_array.push(baw)
         imageData.data[i] = avg;
         imageData.data[i+1] = avg;
@@ -163,49 +170,36 @@ const imagePrep =()=>{
     
     }
     
+    // Modificar el canvas con la imagen b&w.
     trimmedCanvas.getContext("2d").putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
+    // Convertir la imagen del canvas en una imagen con un url.
     let url = trimmedCanvas.toDataURL();
-    await setCurrentImage(url);
+    // Setear la imagen para poder visualizarla.
+    setCurrentImage(url);
 
-
-    const imageData2 = trimmedCanvas.getContext("2d").getImageData(
-        0,
-        0,
-        trimmedCanvas.width,
-        trimmedCanvas.height
-      );
-      console.log(imageData2)
-
-    let myImage = new Image();
-    myImage.src = url;
-
+    // Crear tensor con la información de la imagen ya en blanco y negro.
     let finalIMG = tf.tensor(baw_array);
-    finalIMG = tf.reshape(finalIMG, [modelImgWidth,modelImgWidth,1])
+    finalIMG = tf.reshape(finalIMG, [modelImageSize, modelImageSize, 1])
     console.log('i', i);
     console.log('Shape de la imagen que le vamos a pasar al modelo', finalIMG.shape);
+
+  };
+
   
-
-
-    // setCurrentImage(url)
-  };
-  const state = {
-    backend: "wasm",
-  };
-
-  // Check if webcam access is supported.
+  // Checkear si el acceso a la webCam es soportado por el navegador.
   const getUserMediaSupported = () => {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
   };
 
+  // Predecir el rostro.
   const predictWebcam = () => {
+
     video.play();
 
     videoWidth = video.videoWidth;
     videoHeight = video.videoHeight;
     video.width = videoWidth;
     video.height = videoHeight;
-
-
     canvas = document.getElementById("output");
     canvas.width = videoWidth;
     canvas.height = videoHeight;
@@ -216,12 +210,11 @@ const imagePrep =()=>{
     const flipHorizontal = true;
     const annotateBoxes = true;
 
-    console.log("listo para hacer AI");
+    // console.log("listo para hacer AI");
 
     model
       .estimateFaces(video, returnTensors, flipHorizontal, annotateBoxes)
-      .then((predictions) => {
-        console.log("good news");
+      .then( (predictions) => {
 
         if (predictions.length > 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -246,11 +239,10 @@ const imagePrep =()=>{
                     */
 
           for (let i = 0; i < predictions.length; i++) {
+
             if (returnTensors) {
               predictions[i].topLeft = predictions[i].topLeft.arraySync();
-              predictions[i].bottomRight = predictions[
-                i
-              ].bottomRight.arraySync();
+              predictions[i].bottomRight = predictions[i].bottomRight.arraySync();
               if (annotateBoxes) {
                 predictions[i].landmarks = predictions[i].landmarks.arraySync();
               }
@@ -262,9 +254,8 @@ const imagePrep =()=>{
             // Render a rectangle over each detected face.
             ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
             ctx.fillRect(start[0], start[1], size[0], size[1]);
-            // context.fillRect(start[0], start[1], size[0], size[1]);
 
-            
+            // Tomar la imagen.
             snap(start, size, i);
             
 
@@ -283,13 +274,14 @@ const imagePrep =()=>{
         // Cada medio minuto (30 segundos)
         setTimeout(function () {
           requestAnimationFrame(predictWebcam);
-        }, 60000);
+        }, 10000);
         // requestAnimationFrame(predictWebcam)
       });
   };
 
   // Enable the live webcam view and start classification.
   const enableCam = (event) => {
+
     // Only continue if the COCO-SSD has finished loading.
     if (!model) {
       console.log("no hay modelo");
@@ -334,7 +326,7 @@ const imagePrep =()=>{
       console.log("back ready ");
       blazeface
         .load()
-        .then((loadedModel) => {
+        .then( (loadedModel) => {
           setModel(loadedModel);
           setSectionClass("");
           console.log("modelo cargado");
