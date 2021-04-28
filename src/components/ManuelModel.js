@@ -50,10 +50,20 @@ const ManuelModel = (props) => {
       x,
       y;
 
+    console.log('width', c.width);
+    console.log('height', c.height);
+    console.log('len', l);
+
     // Iterate over every pixel to find the highest
     // and where it ends on every axis ()
+    const cont = 5;
+    let aux = 0;
     for (i = 0; i < l; i += 4) {
+
       if (pixels.data[i + 3] !== 0) {
+
+        // console.log('pixel', pixels.data[i + 3]);
+
         x = (i / 4) % c.width;
         y = ~~(i / 4 / c.width);
 
@@ -82,7 +92,10 @@ const ManuelModel = (props) => {
     }
 
     // Calculate the height and width of the content
-    var trimHeight = bound.bottom - bound.top,
+    console.log('bottom', bound.bottom);
+    console.log('top', bound.bottom);
+
+    let trimHeight = bound.bottom - bound.top,
       trimWidth = bound.right - bound.left,
       trimmed = ctx.getImageData(bound.left, bound.top, trimWidth, trimHeight);
 
@@ -135,14 +148,21 @@ const ManuelModel = (props) => {
     // Dibujar la imagen recortada.
     context.drawImage(
       video,
+
       realTopLeft_x,
       realTopLeft_y,
       imageWidth,
       imageHeight,
+
       realTopLeft_x,
       realTopLeft_y,
       modelImageSize+1,
-      modelImageSize+1
+      modelImageSize+1,
+      // 0,
+      // 0,
+      // modelImageSize,
+      // modelImageSize,
+
     );
 
     // Capturar la imagen del rostro, deshaciéndose de los pixeles transparentes del canvas.
@@ -155,6 +175,13 @@ const ManuelModel = (props) => {
       trimmedCanvas.width,
       trimmedCanvas.height
     );
+
+    // const imageData = canvas2.getContext("2d").getImageData(
+    //     0,
+    //     0,
+    //     canvas2.width,
+    //     canvas2.height
+    // );
  
     // Convertir la imagen a blanco y negro y tener el array blanco y negro (un solo channel)
     let baw_array = [];
@@ -381,6 +408,8 @@ const ManuelModel = (props) => {
 
           <canvas
             id="canvas"
+            // width={modelImageSize}
+            // height={modelImageSize}
             width="640"
             height="480"
             style={{
