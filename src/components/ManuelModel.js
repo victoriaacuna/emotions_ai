@@ -8,6 +8,8 @@ const ManuelModel = (props) => {
 
   // DEFINICIÓN DE VARIABLES Y CONSTANTES.
 
+  const [position, setPosition] = useState(0)
+
   // Este es el tamaño de pixeles con el que fue entrenado el modelo.
   // El modelo de Manuel fue entrenado con imágenes blanco y negro. Es decir, 48x48x1
   const modelImageSize = 48;
@@ -118,6 +120,8 @@ const ManuelModel = (props) => {
     let realTopLeft_x = canvas2.width - (start[0] + size[0]);
     let imageWidth = size[0];
     const canvasWidth = canvas2.width;
+
+    setPosition(start[0])
     
     // Manejar cuando el rostro se sale de los bordes horizontales del video.
     if (realTopLeft_x > canvasWidth) {
@@ -154,14 +158,14 @@ const ManuelModel = (props) => {
       imageWidth,
       imageHeight,
 
-      realTopLeft_x,
-      realTopLeft_y,
+      // realTopLeft_x,
+      // realTopLeft_y,
+      // modelImageSize+1,
+      // modelImageSize+1,
+      0,
+      0,
       modelImageSize+1,
       modelImageSize+1,
-      // 0,
-      // 0,
-      // modelImageSize,
-      // modelImageSize,
 
     );
 
@@ -265,17 +269,19 @@ const ManuelModel = (props) => {
                     ]
                     */
 
-          for (let i = 0; i < predictions.length; i++) {
+          console.log('predictions length', predictions.length);
+
+          predictions.map( (face_detected, index) => {
 
             if (returnTensors) {
-              predictions[i].topLeft = predictions[i].topLeft.arraySync();
-              predictions[i].bottomRight = predictions[i].bottomRight.arraySync();
+              face_detected.topLeft = face_detected.topLeft.arraySync();
+              face_detected.bottomRight = face_detected.bottomRight.arraySync();
               if (annotateBoxes) {
-                predictions[i].landmarks = predictions[i].landmarks.arraySync();
+                face_detected.landmarks = face_detected.landmarks.arraySync();
               }
             }
-            const start = predictions[i].topLeft;
-            const end = predictions[i].bottomRight;
+            const start = face_detected.topLeft;
+            const end = face_detected.bottomRight;
             const size = [end[0] - start[0], end[1] - start[1]];
 
             // Render a rectangle over each detected face.
@@ -283,20 +289,57 @@ const ManuelModel = (props) => {
             ctx.fillRect(start[0], start[1], size[0], size[1]);
 
             // Tomar la imagen.
-            snap(start, size, i);
+            snap(start, size, index);
+            
+            if (annotateBoxes) {
+              const landmarks = face_detected.landmarks;
+              ctx.fillStyle = "blue";
+              landmarks.map( (mark) => {
+                const x = mark[0];
+                const y = mark[1];
+                ctx.fillRect(x, y, 5, 5);
+              })
+              // for (let j = 0; j < landmarks.length; j++) {
+              //   const x = landmarks[j][0];
+              //   const y = landmarks[j][1];
+              //   ctx.fillRect(x, y, 5, 5);
+              // }
+            }
+            
+          })
+
+          // for (let i = 0; i < predictions.length; i++) {
+
+          //   if (returnTensors) {
+          //     predictions[i].topLeft = predictions[i].topLeft.arraySync();
+          //     predictions[i].bottomRight = predictions[i].bottomRight.arraySync();
+          //     if (annotateBoxes) {
+          //       predictions[i].landmarks = predictions[i].landmarks.arraySync();
+          //     }
+          //   }
+          //   const start = predictions[i].topLeft;
+          //   const end = predictions[i].bottomRight;
+          //   const size = [end[0] - start[0], end[1] - start[1]];
+
+          //   // Render a rectangle over each detected face.
+          //   ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+          //   ctx.fillRect(start[0], start[1], size[0], size[1]);
+
+          //   // Tomar la imagen.
+          //   snap(start, size, i);
             
 
-            if (annotateBoxes) {
-              const landmarks = predictions[i].landmarks;
+          //   if (annotateBoxes) {
+          //     const landmarks = predictions[i].landmarks;
 
-              ctx.fillStyle = "blue";
-              for (let j = 0; j < landmarks.length; j++) {
-                const x = landmarks[j][0];
-                const y = landmarks[j][1];
-                ctx.fillRect(x, y, 5, 5);
-              }
-            }
-          }
+          //     ctx.fillStyle = "blue";
+          //     for (let j = 0; j < landmarks.length; j++) {
+          //       const x = landmarks[j][0];
+          //       const y = landmarks[j][1];
+          //       ctx.fillRect(x, y, 5, 5);
+          //     }
+          //   }
+          // }
         }
         // Cada medio minuto (30 segundos)
         setTimeout(function () {
@@ -384,9 +427,9 @@ const ManuelModel = (props) => {
         }}
       ></div>
 
-      {/* <div style={{'height': '150px', 'width':'250px', 'backgroundColor': colorsito}}>
-                {position}
-            </div> */}
+      {/* <div style={{'height': '150px', 'width':'250px'}}>
+          {position}
+      </div> */}
 
       <div id="demos" className={sectionClass}>
         <button id="webcamButton" onClick={handleEnableCamera}>
@@ -412,10 +455,10 @@ const ManuelModel = (props) => {
             // height={modelImageSize}
             width="640"
             height="480"
-            style={{
-              "-webkit-transform": "scaleX(-1)",
-              transform: "scaleX(-1)",
-            }}
+            // style={{
+            //   "-webkit-transform": "scaleX(-1)",
+            //   transform: "scaleX(-1)",
+            // }}
           ></canvas>
         </div>
       </div>
