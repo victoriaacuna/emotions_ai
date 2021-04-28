@@ -8,8 +8,6 @@ const ManuelModel = (props) => {
 
   // DEFINICIÓN DE VARIABLES Y CONSTANTES.
 
-  const [position, setPosition] = useState(0)
-
   // Este es el tamaño de pixeles con el que fue entrenado el modelo.
   // El modelo de Manuel fue entrenado con imágenes blanco y negro. Es decir, 48x48x1
   const modelImageSize = 48;
@@ -52,10 +50,6 @@ const ManuelModel = (props) => {
       x,
       y;
 
-    console.log('width', c.width);
-    console.log('height', c.height);
-    console.log('len', l);
-
     // Iterate over every pixel to find the highest
     // and where it ends on every axis ()
     const cont = 5;
@@ -94,8 +88,6 @@ const ManuelModel = (props) => {
     }
 
     // Calculate the height and width of the content
-    console.log('bottom', bound.bottom);
-    console.log('top', bound.bottom);
 
     let trimHeight = bound.bottom - bound.top,
       trimWidth = bound.right - bound.left,
@@ -110,7 +102,7 @@ const ManuelModel = (props) => {
   };
  
   // Capturar la imagen del video
-  const snap = async (start, size, i) => {
+  const snap = async (start, size, index) => {
 
     context = canvas2.getContext("2d");
     canvas2.width = videoWidth;
@@ -120,8 +112,6 @@ const ManuelModel = (props) => {
     let realTopLeft_x = canvas2.width - (start[0] + size[0]);
     let imageWidth = size[0];
     const canvasWidth = canvas2.width;
-
-    setPosition(start[0])
     
     // Manejar cuando el rostro se sale de los bordes horizontales del video.
     if (realTopLeft_x > canvasWidth) {
@@ -211,7 +201,7 @@ const ManuelModel = (props) => {
     // Crear tensor con la información de la imagen ya en blanco y negro.
     let finalIMG = tf.tensor(baw_array);
     finalIMG = tf.reshape(finalIMG, [modelImageSize, modelImageSize, 1])
-    console.log('i', i);
+    console.log('i', index);
     console.log('Shape de la imagen que le vamos a pasar al modelo', finalIMG.shape);
 
   };
