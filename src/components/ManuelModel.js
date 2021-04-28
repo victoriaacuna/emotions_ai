@@ -30,6 +30,14 @@ const ManuelModel = (props) => {
   };
   // Definición de variables que serán utilizadas más adelante.
   let ctx, videoWidth, videoHeight, canvas, context;
+
+
+  // const loadTensorflowModel = () => {
+  //   const tf = require("@tensorflow/tfjs");
+  //   const tfn = require("@tensorflow/tfjs-node");
+  //   const handler = tfn.io.fileSystem("./path/to/your/model.json");
+  //   const model = await tf.loadModel(handler);
+  // }
   
 
   // Este método sirve para tomar solo la parte del canvas que tiene la imagen
