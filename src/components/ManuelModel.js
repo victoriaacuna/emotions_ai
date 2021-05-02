@@ -4,6 +4,7 @@ import * as tf from "@tensorflow/tfjs-core";
 import * as tf_2 from "@tensorflow/tfjs";
 import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 import group from "./../assets/group.png";
+import {getEmotion} from "../helpers/getEmotion";
 
 const ManuelModel = (props) => {
 
@@ -209,10 +210,15 @@ const ManuelModel = (props) => {
     setCurrentImage(url);
 
     // Crear tensor con la información de la imagen ya en blanco y negro.
+    console.log(JSON.stringify(baw_array));
     let finalIMG = tf.tensor(baw_array);
-    finalIMG = tf.reshape(finalIMG, [modelImageSize, modelImageSize, 1])
+    finalIMG = tf.reshape(finalIMG, [1, modelImageSize, modelImageSize, 1])
     console.log('i', index);
     console.log('Shape de la imagen que le vamos a pasar al modelo', finalIMG.shape);
+    let prediction = model2.predict(finalIMG)
+    const value = prediction.dataSync()
+    console.log("PREDICTION", value)
+    console.log("PREDICTION", getEmotion(value))
 
   };
 
@@ -397,6 +403,7 @@ const ManuelModel = (props) => {
       blazeface
         .load()
         .then( (loadedModel) => {
+          loadModel()
           setModel(loadedModel);
           setSectionClass("");
           console.log("modelo cargado");
@@ -418,10 +425,10 @@ setModel2(await tf_2.loadLayersModel('http://localhost:8887/model.json'))
 console.log('holaaas')
 }
 
-  useEffect(() => {
-    loadModel();
+  // useEffect(() => {
+  //   loadModel();
 
-  }, []);
+  // }, []);
   return (
     <div>
       <div>Manuel Model</div>
