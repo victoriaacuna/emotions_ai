@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import * as tf from "@tensorflow/tfjs-core";
+import * as tf_2 from "@tensorflow/tfjs";
 import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 import group from "./../assets/group.png";
 
@@ -22,6 +23,7 @@ const ManuelModel = (props) => {
   let video = document.getElementById("webcam");
   // Guarda el modelo (en este caso, el modelo para el reconocimiento de rostros)
   const [model, setModel] = useState(undefined);
+  const [model2, setModel2] = useState(undefined);
   // Este es el canvas donde se está dibujando la imagen cortada.
   const canvas2 = document.getElementById("canvas");
   // Variable que define el backend para poder cargar el modelo de blazeface.
@@ -410,7 +412,16 @@ const ManuelModel = (props) => {
     setupPage();
     return () => {};
   }, []);
+const loadModel = async () =>{
 
+setModel2(await tf_2.loadLayersModel('http://localhost:8887/model.json'))
+console.log('holaaas')
+}
+
+  useEffect(() => {
+    loadModel();
+
+  }, []);
   return (
     <div>
       <div>Manuel Model</div>
