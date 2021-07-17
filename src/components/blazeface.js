@@ -87,6 +87,7 @@ const Blazeface = props => {
                             predictions[i].landmarks = predictions[i].landmarks.arraySync();
                         }
                     }
+                    console.log("PREDICCION", predictions[i])
                     const start = predictions[i].topLeft;
                     const end = predictions[i].bottomRight;
                     const size = [end[0] - start[0], end[1] - start[1]];

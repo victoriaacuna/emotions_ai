@@ -3,6 +3,7 @@ import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import App from './App';
 import Blazeface from './components/blazeface';
 import ManuelModel from './components/ManuelModel';
+import Embedding from './components/Embedding';
 // import ProtectedRoute from './ProtectedRoute'
 
 function Routes() {
@@ -15,6 +16,7 @@ function Routes() {
           <Route exact path="/" component={App}/>,
           <Route exact path="/blazeface" component={Blazeface}/>,
           <Route exact path="/manuel" component={ManuelModel}/>,
+          <Route exact path="/embedding" component={Embedding}/>,
           {/* <ProtectedRoute exact path="/:landing/main" role={isUser} component={UserMain}/>, */}
         </Switch>
       </BrowserRouter>
